@@ -1,12 +1,16 @@
+const { json } = require("express");
+
 class ApiFeatures {
 
   //constructor he
   constructor(query, queryStr) {
     this.query = query;
-    this.queryStr = queryStr;
+    this.queryStr = queryStr;    //parameters pass kiye hue isme aayge 
   }
 
-  // -----// Search feature
+
+
+  // ----------------------// Search feature
   search() {
     //// Extract the keyword from the query string, and create a regex pattern for a case-insensitive search or for a keyword search
     //  console.log(this.queryStr.keyword);
@@ -28,6 +32,49 @@ class ApiFeatures {
     return this;
   }
 
+
+
+
+  // -----------------------//filter feature for category
+
+  filter() {
+
+
+    //------111query.str ko use karke modify karna he to sabse pehle iski copy baba lete he taki main wali query.str me kuch na ho //  const copiedKeyword = { ...originalKeyword };  //spread operator
+    const queryCopy = { ...this.queryStr }
+    // console.log("Before removing fields", queryCopy);
+
+    //Removing some fields for Category
+    const removeFields = ["keyword", "page", "limit"];
+
+    //iterate the removefields using forEach loop
+    removeFields.forEach((key) => { delete queryCopy[key] });
+
+    //111 console.log("After removing fields", queryCopy);
+
+
+
+    //2222--------------------------------- Filter For Price and Rating
+    console.log(queryCopy);
+    let querystr = JSON.stringify(queryCopy);
+    querystr = querystr.replace(/\b(gt|gte|lt|lte)\b/g, (key)=>`$${key}`);
+    this.query = this.query.find(JSON.parse(querystr));
+
+    //222 console.log(querystr);
+
+    //111 this.query = this.query.find(queryCopy);
+
+    return this;
+
+
+
+  }
+  
+
+
+
+
+
 }
 
 module.exports = ApiFeatures;
@@ -44,15 +91,21 @@ module.exports = ApiFeatures;
 
 
 
-
-
-
-
-
-
-
-
 /*
+// ------------search(0)  and filter how it works 
+Explanation:
+
+The ApiFeatures class is designed to provide features like search and filter for a query. It takes an initial query (Product.find()) and the request query parameters (req.query) as input.
+The search method of the ApiFeatures class constructs a regex pattern for a case-insensitive search based on the keyword parameter in the request query. It then updates the this.query property with the modified query.
+The filter method of the ApiFeatures class is used to filter the query based on certain conditions. It creates a copy of the original query string (queryCopy) and removes specified fields ("keyword", "page", "limit") from it. Then, it updates the this.query property with the modified query.
+In the getAllProducts function, an instance of the ApiFeatures class is created, and the search and filter methods are applied to modify the query. The modified query is then used to retrieve products from the database, and the result is sent as a JSON response.
+
+
+
+*/
+
+
+/*// -------------------search()
 ////////////------samajne ke liye
 {
   // 'get all products' code snippet

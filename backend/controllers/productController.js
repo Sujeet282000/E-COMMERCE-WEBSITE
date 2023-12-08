@@ -22,9 +22,13 @@ exports.createProduct = catchAsyncErrors(async (req, res, next) => {
 
 //Get All Product
 exports.getAllProducts = catchAsyncErrors(async (req, res, next) => {
+
+    const resultPerPage = 5;
      
     //// ApiFeatures class ka instance banaya jata hai
-    const api_Feature = new ApiFeatures(Product.find(), req.query).search();
+    const api_Feature = new ApiFeatures(Product.find(), req.query)
+    .search()
+    .filter().pagination(resultPerPage);
 
      // Products ko retrieve karne ke liye modified query ka use kiya jata hai
     const products = await api_Feature.query;
@@ -49,7 +53,7 @@ exports.getProductDetails = catchAsyncErrors(async (req, res, next) => {
   
     res.status(200).json({
       success: true,
-      product
+      product,
     });
 });
 
