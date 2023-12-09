@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const { schema } = require("./productModel");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -19,7 +21,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please Enter Your Password"],
         minLength: [8, "Password should have more than 6 characters"],
-        select: false,   //Admin jab bhi User find karte samay password na de 
+        select: false,   //Admin jab bhi User find kare to us samay password na de 
 
     },
     avatar: {
@@ -39,7 +41,55 @@ const userSchema = new mongoose.Schema({
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
-})
+});
+
+
+//*********PASSWORD HASHING*********
+// dont forger its an EVENT
+// ------------------------------------------------------
+//----Mongoose middleware to hash the password before saving 
+
+//  The pre('save', ...) middleware is registered on the userSchema, which means it will run before saving a user to the database.
+
+
+userSchema.pre("save", async function (next) {
+
+    // Check if the password is modified or if it's a new user --> if not do it
+    if (!this.isModified('password')) {
+        return next();
+    }
+
+    //if yes then do it
+    this.password = await bcrypt.hash(this.password, 10);
+
+    // this line shows this const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(user.password, salt);
+    //user.password = hashedPassword;
+});
+
+
+
+
+// -----------------------------------------------
+// JWT TOKEN
+//  // Method to generate JWT for user // HERE WE USE FUNCITON INSTEAD OF ARROW FUNCION BAECAUSE WE USE THIS IN FUNCTION BUT NOT IN ARROW FUNCTION
+
+userSchema.methods.getJWTToken = function () {
+    const user = this;
+
+    // Generate a JWT with user information // means ham log JWT token bana rahe he thike
+
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRE });     //ye ham bana rahe he jwt Replace 'your-secret-key' with a secret key
+
+    return token;
+};
+
+
+// Compare Method
+userSchema.methods.comparePassword = async function(enteredPassword){
+    return await bcrypt.compare(enteredPassword, this.password);   // this ka matlab userSchema khud (individual user) to uske password ka hash mil jayga
+}
+
 
 module.exports = mongoose.model("User", userSchema);
 

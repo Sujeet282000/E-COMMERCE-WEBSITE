@@ -1,13 +1,16 @@
 const { json } = require("express");
 
+
+
+
 class ApiFeatures {
+
 
   //constructor he
   constructor(query, queryStr) {
     this.query = query;
     this.queryStr = queryStr;    //parameters pass kiye hue isme aayge 
   }
-
 
 
   // ----------------------// Search feature
@@ -22,7 +25,7 @@ class ApiFeatures {
     }
       : {};
 
-    console.log(keyword);
+    // console.log(keyword);
 
     // Update the 'this.query' property using the 'find' method with the constructed keyword object
     // find wali query chamge kardi
@@ -53,7 +56,6 @@ class ApiFeatures {
     //111 console.log("After removing fields", queryCopy);
 
 
-
     //2222--------------------------------- Filter For Price and Rating
     console.log(queryCopy);
     let querystr = JSON.stringify(queryCopy);
@@ -66,11 +68,28 @@ class ApiFeatures {
 
     return this;
 
+  }
 
 
+
+  //------------------------// Paginaton
+  pagination(resultPerPage) {
+    // Log the current page from queryStr (for debugging purposes)
+    console.log(this.queryStr.page);
+  
+    // Convert the page number from queryStr to a number, default to 1 if not provided
+    const currentPage = Number(this.queryStr.page) || 1;
+  
+    // Calculate the number of documents to skip based on the current page and resultPerPage
+    const skip = resultPerPage * (currentPage - 1);
+  
+    // Modify the query by limiting the number of documents and skipping the calculated amount
+    this.query = this.query.limit(resultPerPage).skip(skip);
+  
+    // Return the current instance of the class (usually for method chaining)
+    return this;
   }
   
-
 
 
 
