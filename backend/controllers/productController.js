@@ -9,6 +9,7 @@ const ApiFeatures = require("../utils/apiFeatures");
 // Create Product - Admin
 exports.createProduct = catchAsyncErrors(async (req, res, next) => {
 
+    req.body.user = req.user.id;   //12121 Explanation Niche// isse or aache se samajna padega
     const product = await Product.create(req.body);
 
     res.status(201).json({
@@ -102,3 +103,47 @@ exports.deleteProduct = catchAsyncErrors(async (req, res, next) => {
 });
 
 
+
+
+
+
+
+
+
+
+
+
+
+/*
+// **********12121
+
+// Create Product - Admin
+exports.createProduct = catchAsyncErrors(async (req, res, next) => {
+
+    req.body.user = req.user.id;
+
+    // ... (rest of the code for creating a product)
+});
+```
+
+Explanation:
+
+- **Objective:**
+  - This code is part of a function that handles the creation of a new product, and it's specifically designed for an admin user.
+
+- **`req.body.user = req.user.id;`:**
+  - The `req` object represents the incoming request to the server.
+  - The `req.body` property contains the data sent in the request's body (e.g., when a user submits a form).
+  - `req.user` is often used in authentication to represent the user who is currently logged in.
+  - `req.user.id` is the unique identifier (id) of the currently logged-in user.
+
+- **What It Does:**
+  - The line of code sets the `user` field in the product creation data (`req.body.user`) to the id of the currently logged-in user (`req.user.id`).
+  - In other words, it associates the new product with the user who is creating it.
+
+- **Example:**
+  - If an admin (authenticated user) is creating a new product, this line ensures that the product will be linked to that admin user.
+
+In simpler terms, this code is making sure that when a new product is being created, it automatically knows which user (admin, in this case) is responsible for creating it. This helps keep track of who created each product in the system.
+
+*/

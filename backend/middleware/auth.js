@@ -61,18 +61,26 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 
+// iske bad niche hi wala function hohga run
+
 
 // *****************222222
 
+// Middleware function to authorize user roles
+
 exports.authorizeRoles = (...roles) => {
 
+    // The middleware function that will be executed for each request
     return (req, res, next) => {
 
+        // Check if the user's role is included in the allowed roles
         if (!roles.includes(req.user.role)) {
+
+            // If not, return an error response indicating forbidden access (403)
             return next(new ErrorHander(`Role: ${req.user.role} is not allowed to access this resource`, 403));
         }
 
+        // If the user's role is allowed, move to the next middleware or route handler
         next();
-
     };
 };
