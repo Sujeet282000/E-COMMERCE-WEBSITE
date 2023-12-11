@@ -75,7 +75,7 @@ class ApiFeatures {
   //------------------------// Paginaton
   pagination(resultPerPage) {
     // Log the current page from queryStr (for debugging purposes)
-    console.log(this.queryStr.page);
+    // console.log(this.queryStr.page);
   
     // Convert the page number from queryStr to a number, default to 1 if not provided
     const currentPage = Number(this.queryStr.page) || 1;

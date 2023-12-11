@@ -1,10 +1,11 @@
 const express = require("express");
 const { getAllProducts, createProduct, updateProduct, deleteProduct, getProductDetails } = require("../controllers/productController");
+const { isAuthenticatedUser } = require("../middleware/auth");
 
 const router = express.Router();
 
 // products get karne ka route
-router.route("/products").get(getAllProducts)
+router.route("/products").get(isAuthenticatedUser,getAllProducts);
 
 // product create karne ka route 
 router.route("/product/new").post(createProduct)
