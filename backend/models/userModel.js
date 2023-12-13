@@ -3,6 +3,7 @@ const validator = require("validator");
 const { schema } = require("./productModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -39,11 +40,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "user",
     },
+
     resetPasswordToken: String,
     resetPasswordExpire: Date,
 });
 
 
+
+
+// ----------------------------------------------
 //*********PASSWORD HASHING*********
 // dont forger its an EVENT
 // ------------------------------------------------------
@@ -79,22 +84,52 @@ userSchema.methods.getJWTToken = function () {
 
     // Generate a JWT with user information // means ham log JWT token bana rahe he thike
 
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRE });     //ye ham bana rahe he jwt Replace 'your-secret-key' with a secret key
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });     //ye ham bana rahe he jwt Replace 'your-secret-key' with a secret key
 
     return token;
 };
 
 
+// ----------------------------------------------------------
 // Compare Method
-userSchema.methods.comparePassword = async function(enteredPassword){
+userSchema.methods.comparePassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);   // this ka matlab userSchema khud (individual user) to uske password ka hash mil jayga
+}
+
+
+// ---------------------------------------------------------------
+//-- Generating Password Reset token
+
+//-- HERE WE USE FUNCITON INSTEAD OF ARROW FUNCION BAECAUSE WE USE THIS IN FUNCTION BUT NOT IN ARROW FUNCTION
+
+userSchema.methods.getResetPasswordToken = function () {
+    
+    // Generate a random reset token // to isse ho jayga generate
+    const resetToken = crypto.randomBytes(20).toString('hex');
+
+    // Hash the token and set to userSchema resetPasswordToken field
+    this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // Set expire time for this token
+    this.resetPasswordExpire = Date.now() + 30 * 60 * 1000; // 3
+    // Minutes
+
+    // ye dono fileds to isi schema me save ho gayi he aditis // or ham return kar denge resetToken abhi batauga kyu kara resetToken return instead of this resetPasswordToken
+    return resetToken;
+    
 }
 
 
 module.exports = mongoose.model("User", userSchema);
 
 
+
+
+
 /*
+
+*****8/********* 
+//module.exports = mongoose.model("User", userSchema);
 
 mongoose.model:
 
