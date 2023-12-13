@@ -2,7 +2,7 @@
 const express = require("express");
 
 // Import specific functions (registerUser and loginUser) from the userController module
-const { registerUser, loginUser, logoutUser, forgotPassword } = require("../controllers/userController");
+const { registerUser, loginUser, logoutUser, forgotPassword, resetPassword } = require("../controllers/userController");
 
 // Create an Express Router
 const router = express.Router();
@@ -17,7 +17,10 @@ router.route("/login").post(loginUser);
 
 router.route("/password/forgot").post(forgotPassword);
 
+router.route("/password/reset/:token").put(resetPassword);
+
 router.route("/logout").get(logoutUser);
+
 
 // Export the router to make it accessible in other files
 module.exports = router;

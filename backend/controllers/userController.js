@@ -4,6 +4,7 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const User = require("../models/userModel");
 const sendToken = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail");
+const crypto = require("crypto");
 
 //-----Register a user
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
@@ -132,4 +133,53 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
         // return next(new ErrorHander(error.message, 500));
     }
 
+});
+
+
+
+
+
+
+// ---------------------Reset Password
+
+// Define the route handler for the "reset password" functionality
+
+exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
+
+
+    //Creating a token hash using the SHA256 algorithm
+    const resetPasswordToken = crypto
+        .createHash('sha256')
+        .update(req.params.token)
+        .digest('hex');
+
+    // Query the database to find a user with the provided resetPasswordToken
+    // and a resetPasswordExpire timestamp greater than the current time
+    const user = await User.findOne({
+        resetPasswordToken: resetPasswordToken,
+        resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    // If no user is found, return an error indicating that the reset token is invalid or has expired
+    if (!user) {
+        return next(new ErrorHander("Reset Password Token is invalid or has been expired", 400));
+    }
+
+    // Check if the entered password and confirmPassword match
+    if (req.body.password !== req.body.confirmPassword) {
+        return next(new ErrorHander("Password does not match", 400));
+    }
+
+    // If the passwords match, update the user's password
+    user.password = req.body.password;
+
+    // Clear the resetPasswordToken and resetPasswordExpire fields
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    // Save the updated user object to the database
+    await user.save();
+
+    // Send a new authentication token as a response to the client
+    sendToken(user, 200, res);
 });
