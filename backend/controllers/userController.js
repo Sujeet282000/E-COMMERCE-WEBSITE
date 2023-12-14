@@ -183,3 +183,21 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
     // Send a new authentication token as a response to the client
     sendToken(user, 200, res);
 });
+
+
+
+//Get User Details 
+
+//***********// ye wala route wahi access kar sakta he jisne pehle login kar rakha ho, and you know login karte hi kya hota he (user) mil jata he or ( req.user ) me pura user save ho jatahe, to aasa hoga hi nahi ki user na mile, kyuki req.user.id means req se hi access kar rahe he
+
+//Or me isse aasa banauga ki jisne login kar rakha he wahi access kar sakta he ,[ it means (user) or (user) ] to apni hi detail wahi lega na login karne ke baad
+
+exports.getUserDetails = catchAsyncErrors( async(req, res, next)=>{
+
+    const user = await User.findById(req.user.id);
+
+    res.status(200).json({
+        success:true,
+        user,
+    });
+});
