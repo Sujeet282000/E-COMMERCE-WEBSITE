@@ -41,6 +41,11 @@ const userSchema = new mongoose.Schema({
         default: "user",
     },
 
+    createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+
     resetPasswordToken: String,
     resetPasswordExpire: Date,
 });
@@ -93,7 +98,15 @@ userSchema.methods.getJWTToken = function () {
 // ----------------------------------------------------------
 // Compare Method
 userSchema.methods.comparePassword = async function (enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);   // this ka matlab userSchema khud (individual user) to uske password ka hash mil jayga
+
+    // console.log("Entered Password:", enteredPassword);
+    // console.log("Stored Password:", this.password);
+
+    const result = await bcrypt.compare(enteredPassword, this.password);
+
+        console.log("Password Match Result:", result);
+        
+        return result;  // this ka matlab userSchema khud (individual user) to uske password ka hash mil jayga
 }
 
 

@@ -39,13 +39,14 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHander("Please Enter Email & Password", 400));
     }
 
-    const user = await User.findOne({ email: email }).select("+password"); // sirf email bhi likh sakte he //selct use kiya kyuki password ko select:false kiya tha
+    const user = await User.findOne({email: email}).select("+password"); // sirf email bhi likh sakte he //selct use kiya kyuki password ko select:false kiya tha
 
     if (!user) {
         return next(new ErrorHander("Invalid email or password", 401));
     }
 
-    const isPasswordMatched = user.comparePassword(password);
+    const isPasswordMatched =  await user.comparePassword(password);
+    console.log(isPasswordMatched);
     if (!isPasswordMatched) {
         return next(new ErrorHander("Invalid email or password", 401));
     }
@@ -173,6 +174,8 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
     // If the passwords match, update the user's password
     user.password = req.body.password;
 
+    console.log("password update successfully");
+
     // Clear the resetPasswordToken and resetPasswordExpire fields
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
@@ -186,18 +189,58 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 
 
-//Get User Details 
+
+
+//---------------Get User Details 
 
 //***********// ye wala route wahi access kar sakta he jisne pehle login kar rakha ho, and you know login karte hi kya hota he (user) mil jata he or ( req.user ) me pura user save ho jatahe, to aasa hoga hi nahi ki user na mile, kyuki req.user.id means req se hi access kar rahe he
 
 //Or me isse aasa banauga ki jisne login kar rakha he wahi access kar sakta he ,[ it means (user) or (user) ] to apni hi detail wahi lega na login karne ke baad
 
-exports.getUserDetails = catchAsyncErrors( async(req, res, next)=>{
+// Retrieve user details by their ID and send as a JSON response
+exports.getUserDetails = catchAsyncErrors(async (req, res, next) => {
 
+    // Find the user in the database using their ID from the request object
     const user = await User.findById(req.user.id);
 
+    // Respond with a JSON object containing the user details
     res.status(200).json({
-        success:true,
+        success: true,
         user,
     });
+});
+
+
+
+
+
+//------------ Update user password
+
+
+exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
+
+    // Find the user in the database by their ID, including the password field
+    const user = await User.findById(req.user.id).select("+password");
+  
+    // Check if the provided old password matches the user's current password
+    const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
+  
+    // If the old password doesn't match, return an error response
+    if (!isPasswordMatched) {
+        return next(new ErrorHander("Old password is incorrect", 400));
+    }
+  
+    // Check if the new password and confirm password match
+    if (req.body.newPassword !== req.body.confirmPassword) {
+        return next(new ErrorHander("Password does not match", 400));
+    }
+  
+    // Update the user's password with the new password
+    user.password = req.body.newPassword;
+  
+    // Save the updated user to the database
+    await user.save();
+  
+    // Send a new authentication token as a response to the client
+    sendToken(user, 200, res);
 });
