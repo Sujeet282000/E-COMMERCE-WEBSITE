@@ -2,8 +2,8 @@
 const express = require("express");
 
 // Import specific functions (registerUser and loginUser) from the userController module
-const { registerUser, loginUser, logoutUser, forgotPassword, resetPassword, getUserDetails, updatePassword } = require("../controllers/userController");
-const { isAuthenticatedUser } = require("../middleware/auth");
+const { registerUser, loginUser, logoutUser, forgotPassword, resetPassword, getUserDetails, updatePassword, updateProfile, getAllUsers, getSingleUsersDetails, updateUserRole, deleteUser } = require("../controllers/userController");
+const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
 
 
 
@@ -32,6 +32,19 @@ router.route("/me").get(isAuthenticatedUser, getUserDetails);
 
 // Handle PUT requests to update the password of the authenticated user
 router.route("/password/update").put(isAuthenticatedUser, updatePassword);
+
+// Handle PUT requests to update the profile of the authenticated user
+router.route("/me/update").put(isAuthenticatedUser, updateProfile);
+
+//Admin role means = jo sirf admin access kar sakta he
+router.route("/admin/users").get(isAuthenticatedUser, authorizeRoles("admin"), getAllUsers);
+
+
+//Admin role means = jo sirf admin access kar sakta he //same routes different method
+router.route("/admin/user/:id").get(isAuthenticatedUser, authorizeRoles("admin"), getSingleUsersDetails);
+router.route("/admin/user/:id").put(isAuthenticatedUser, authorizeRoles("admin"), updateUserRole);
+router.route("/admin/user/:id").delete(isAuthenticatedUser, authorizeRoles("admin"), deleteUser);
+
 
 
 // Export the router to make it accessible in other files

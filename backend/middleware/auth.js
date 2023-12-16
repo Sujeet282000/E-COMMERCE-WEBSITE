@@ -56,6 +56,8 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
     console.log(req.user.role);
 
     // Move to the next middleware or route handler
+    console.log("done from here");
+
     next();
 
 });
@@ -81,6 +83,10 @@ exports.authorizeRoles = (...roles) => {
         }
 
         // If the user's role is allowed, move to the next middleware or route handler
+        console.log("done from roles");
+
+
         next();
+
     };
 };

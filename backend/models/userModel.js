@@ -8,7 +8,7 @@ const crypto = require("crypto");
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, "Please Enter product Name"],
+        required: [true, "Please provide a name"],
         maxLength: [30, "Name cannot exceed 30 characters"],
         minLength: [4, "Name should have more than 4 characters"],
     },
@@ -105,7 +105,7 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
     const result = await bcrypt.compare(enteredPassword, this.password);
 
         console.log("Password Match Result:", result);
-        
+
         return result;  // this ka matlab userSchema khud (individual user) to uske password ka hash mil jayga
 }
 

@@ -39,13 +39,13 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHander("Please Enter Email & Password", 400));
     }
 
-    const user = await User.findOne({email: email}).select("+password"); // sirf email bhi likh sakte he //selct use kiya kyuki password ko select:false kiya tha
+    const user = await User.findOne({ email: email }).select("+password"); // sirf email bhi likh sakte he //selct use kiya kyuki password ko select:false kiya tha
 
     if (!user) {
         return next(new ErrorHander("Invalid email or password", 401));
     }
 
-    const isPasswordMatched =  await user.comparePassword(password);
+    const isPasswordMatched = await user.comparePassword(password);
     console.log(isPasswordMatched);
     if (!isPasswordMatched) {
         return next(new ErrorHander("Invalid email or password", 401));
@@ -221,26 +221,151 @@ exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
 
     // Find the user in the database by their ID, including the password field
     const user = await User.findById(req.user.id).select("+password");
-  
+
     // Check if the provided old password matches the user's current password
     const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
-  
+
     // If the old password doesn't match, return an error response
     if (!isPasswordMatched) {
         return next(new ErrorHander("Old password is incorrect", 400));
     }
-  
+
     // Check if the new password and confirm password match
     if (req.body.newPassword !== req.body.confirmPassword) {
         return next(new ErrorHander("Password does not match", 400));
     }
-  
+
     // Update the user's password with the new password
     user.password = req.body.newPassword;
-  
+
     // Save the updated user to the database
     await user.save();
-  
+
     // Send a new authentication token as a response to the client
     sendToken(user, 200, res);
 });
+
+
+
+//------------ Update user Profile
+
+
+exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
+    const { email, name } = req.body;
+
+    //// Custom validation checks for email and name laga saskte because schema validation not workds here
+
+    const newUserData = {
+        name: name,
+        email: email,
+    };
+
+    //we will add  cloudinary later
+
+    const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false,
+    });
+
+    console.log("Updated user profile Successfully");
+
+    // Send a new authentication token as a response to the client
+    res.status(200).json({
+        success: true,
+    })
+});
+
+
+
+//Admin
+
+// ****************/ Get all users ( for admin )
+
+exports.getAllUsers = catchAsyncErrors(async (req, res, next) => {
+
+    // to sare users de dega kyuki hamne parameter nahi diye
+    const users = await User.find();
+    //  console.log(users); 
+
+    res.status(200).json({
+        success: true,
+        users,
+    });
+
+});
+
+
+
+
+//**************/ Get Single user Details ( for admin )
+
+exports.getSingleUsersDetails = catchAsyncErrors(async (req, res, next) => {
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+        return next(new ErrorHander(`No user found with this id ${req.params.id}`, 404));
+    }
+
+    res.status(200).json({
+        success: true,
+        user,
+    });
+
+});
+
+
+
+
+//------------ Update user Role ---(Admin)
+
+exports.updateUserRole = catchAsyncErrors(async (req, res, next) => {
+
+    //// Custom validation checks for email and name laga saskte because schema validation not workds here
+
+    const newUserData = {
+
+        name: req.body.name,
+        email: req.body.email,
+        role: req.body.role,
+    };
+
+    const user = await User.findByIdAndUpdate(req.params.id, newUserData, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false,
+    });
+
+
+    // Send a new authentication token as a response to the client
+    res.status(200).json({
+        success: true,
+        message:"User updated successfully"
+    })
+});
+
+
+
+//------------ Delete user ==(Admin)
+
+exports.deleteUser = catchAsyncErrors(async (req, res, next) => {
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+        // No user found with the specified ID
+        return next(new ErrorHander(`No user found with this id ${req.params.id}`, 404));
+    }
+
+
+  // Remove the user from the database
+  await user.deleteOne();
+
+    // Send a new authentication token as a response to the client
+    res.status(200).json({
+        success: true,
+        message:"User Deleted successfully",
+    })
+});
+
