@@ -56,7 +56,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
     console.log(req.user.role);
 
     // Move to the next middleware or route handler
-    // console.log("done from here");
+    console.log("done from here");
 
     next();
 
