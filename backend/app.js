@@ -14,12 +14,14 @@ app.use(cookieParser());
 //Route Imports
 const product = require("./routes/productRoute");
 const user = require("./routes/userRoute");
+const order = require("./routes/orderRoute")
 
 
 // In Express, app.use() is a method used to mount middleware functions or other routers at a specified path. Here, you are mounting the product and user routers under the path "/api/v1".// hame wo string batani chahiye jo hamesa add honi chahiye
 
 app.use("/api/v1", product);    
 app.use("/api/v1", user);
+app.use("/api/v1", order)
 
 // Middleware for handling Errors
 app.use(errorMiddleware)

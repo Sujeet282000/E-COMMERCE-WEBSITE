@@ -47,7 +47,9 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
     }
 
     const isPasswordMatched = await user.comparePassword(password);
-    console.log(isPasswordMatched);
+
+    // console.log(isPasswordMatched);
+
     if (!isPasswordMatched) {
         return next(new ErrorHander("Invalid email or password", 401));
     }
@@ -129,7 +131,7 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
         await user.save({ validateBeforeSave: false });
 
         // Return an error response
-        console.log(error.message);
+        // console.log(error.message);
 
         return next(new ErrorHander(`There was an error sending the email${error.message}`, 500));
         // return next(new ErrorHander(error.message, 500));
