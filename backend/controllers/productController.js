@@ -6,7 +6,8 @@ const ApiFeatures = require("../utils/apiFeatures");
 
 
 
-// Create Product - Admin
+//**************Create Product - Admin
+
 exports.createProduct = catchAsyncErrors(async (req, res, next) => {
 
     req.body.user = req.user.id;   //12121 Explanation Niche// isse or aache se samajna padega
@@ -50,7 +51,8 @@ exports.getAllProducts = catchAsyncErrors(async (req, res, next) => {
 
 
 
-// Get Product Details or Get single product details
+//******************** */ Get Product Details or Get single product details
+
 exports.getProductDetails = catchAsyncErrors(async (req, res, next) => {
     const product = await Product.findById(req.params.id);
 
@@ -67,7 +69,7 @@ exports.getProductDetails = catchAsyncErrors(async (req, res, next) => {
 
 
 
-// Update Product --Admin
+//********************* */ Update Product --Admin
 exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
 
     let product = await Product.findById(req.params.id);
@@ -89,7 +91,9 @@ exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
 
 });
 
-// Delete Product --Admin
+
+
+//********************* */ Delete Product --Admin
 
 exports.deleteProduct = catchAsyncErrors(async (req, res, next) => {
     const product = await Product.findById(req.params.id);
@@ -108,7 +112,10 @@ exports.deleteProduct = catchAsyncErrors(async (req, res, next) => {
 
 
 
-//--Create New Review or Upadate the Review
+
+//***********Middleware Functions ***********/
+
+//*********************Create New Review or Upadate the Review
 
 exports.createProductReview = catchAsyncErrors(async (req, res, next) => {
 
@@ -125,7 +132,7 @@ exports.createProductReview = catchAsyncErrors(async (req, res, next) => {
     const product = await Product.findById(productId);
 
     if (!product) {
-        return next(new ErrorHandler('The Product you are looking for does not exist', 404));
+        return next(new ErrorHander('The Product you are looking for does not exist', 404));
     }
 
     //---Check if user has already reviewed this product
@@ -181,6 +188,119 @@ exports.createProductReview = catchAsyncErrors(async (req, res, next) => {
     });
 
 });
+
+
+
+
+//************ Get All Reviews of a Single Product
+
+exports.getSingleProductReview = catchAsyncErrors( async(req, res, next)=>{
+
+    // Find the product by ID
+    const product = await Product.findById(req.query.productId);
+
+    if(!product){
+        return next(new ErrorHander(`No product found with id ${req.query.productId}`,404));
+    }
+
+ console.log(product.ratings);
+
+    res.status(200).json({
+        success : true ,
+        reviews: product.reviews,
+    })
+
+});
+
+
+
+
+// ********************* Delete Review of a Single Product
+
+exports.deleteReview = catchAsyncErrors( async(req, res, next)=>{
+
+    // Find the product based on productId
+    const product = await Product.findById(req.query.productId);
+
+    // Check if the product exists
+    if(!product){
+        return next(new  ErrorHander(`No product found with id `,404));
+    }
+
+
+    //review banate hi usme aati he _id wo id he (rev._id.toString()),, 
+    //or ye basic review id he jo ham req karte waqt dnege (req.query.id) or ham id wo denge jo hame delete karna he // ot ham sare wo review dundh lenge jo hame delete nahi karni he  // or wo ham reviews me save kar denge
+
+    // to isme wo sare reviews homge jo hame delete nahi karna he kyuki ye wo filter kar raha he jo hame dlete nahi karna he
+    
+
+    // Use filter to exclude the review with the specified id (query parameter)
+    const reviews = product.reviews.filter(
+        (rev) => rev._id.toString() !== req.query.id.toString()
+      );
+    
+    console.log(reviews);
+
+
+
+    //--obiously reviews nay he to rating bhi badalni padegi or ye sam or ek hi product me apply hogi
+
+    // Calculate the average rating
+    let totalRating = 0;
+    reviews.forEach((rev) => {
+        totalRating += rev.rating;
+    });
+    // average rating
+    let ratings = 0;
+
+  if (reviews.length === 0) {
+    ratings = 0;
+  } else {
+    ratings = totalRating / reviews.length;
+  }
+    console.log(Number(ratings));
+
+
+
+
+    const numOfReviews = reviews.length;
+
+
+    // Now update all the three things in a product
+
+    await Product.findByIdAndUpdate(req.query.productId, {
+        reviews : reviews,
+        ratings : Number(ratings),
+        numOfReviews : numOfReviews,
+    },{
+        new: true,
+        runValidators:true,
+        useFindAndModify:false,
+
+    });
+
+
+    res.status(200).json({
+        success : true ,
+    })
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
