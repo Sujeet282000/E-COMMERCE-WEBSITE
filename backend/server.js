@@ -2,6 +2,7 @@ const app = require("./app");
 const dotenv = require("dotenv");
 const connectDatabase = require("./config/database")
 
+
 // /------------/handling Uncaught Exception
 process.on('uncaughtException', (err) => {
     console.log(`Error:, ${err.message}`);
@@ -10,10 +11,16 @@ process.on('uncaughtException', (err) => {
     process.exit(1); // Exit the process with a non-zero status code
   });
 
+
+
 // --// config
 dotenv.config({ path: "backend/config/config.env" });
 
-// -----// connecting to the database
+
+
+
+
+// -----// connecting to the database by calling function
 connectDatabase();
 
 const server = app.listen(process.env.PORT, () => {
@@ -21,7 +28,6 @@ const server = app.listen(process.env.PORT, () => {
 });
 
 // console.log(youtaube);youtube ids not defined to hamara crash ho gya server or we handled this error in upper 
-
 
 // -------//unhandled promis rejection    //event - unhandleRejection
 process.on("unhandledRejection", (err) => {
