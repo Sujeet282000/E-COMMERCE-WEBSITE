@@ -2,6 +2,7 @@ import React from "react";
 import { CiDesktopMouse2 } from "react-icons/ci";
 import "./Home.css";
 import Product from "./Product.js";
+import MetaData from "../layout/MetaData"
 
 const product = {
   name: "Blue Tshirt",
@@ -13,6 +14,9 @@ const product = {
 const Home = () => {
   return (
     <>
+
+    <MetaData title="Ecommerce"/>
+
       <div className="banner">
         <p>Welcome to Ecommerce</p>
         <h1>FIND AMAZING PRODUCTS BELOW</h1>
